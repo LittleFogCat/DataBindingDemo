@@ -1,8 +1,10 @@
 package top.littlefogcat.simpledatabindingkt
 
 import android.annotation.SuppressLint
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
 import top.littlefogcat.simpledatabindingkt.StockViewModel.Companion.STATE_FAILURE
 import top.littlefogcat.simpledatabindingkt.StockViewModel.Companion.STATE_INITIAL
 import top.littlefogcat.simpledatabindingkt.StockViewModel.Companion.STATE_QUERYING
@@ -29,5 +31,17 @@ fun setTextByQueryState(textView: TextView?, state: Int, info: StockInfo?) {
             }
         }
         STATE_FAILURE -> textView.text = "查询失败"
+    }
+}
+
+@BindingAdapter("app:dailyTrend", "app:stockInfo")
+fun setDailyTrendImage(image: ImageView?, state: Int, stockInfo: StockInfo?) {
+    if (image == null || stockInfo == null) return
+    if (state == STATE_SUCCESS) {
+        val realCode = StockUtil.reformatCode(stockInfo.code)
+        val url = "http://image.sinajs.cn/newchart/min/n/$realCode.gif"
+        Glide.with(image)
+            .load(url)
+            .into(image)
     }
 }

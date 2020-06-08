@@ -31,7 +31,7 @@ class StockViewModel() {
     val stateObservable = ObservableInt(STATE_INITIAL)
 
     fun queryStock(code: String) {
-        val realCode = reformatCode(code) ?: return
+        val realCode = StockUtil.reformatCode(code) ?: return
 
         stateObservable.set(STATE_QUERYING)
 
@@ -57,18 +57,5 @@ class StockViewModel() {
         }
     }
 
-    /**
-     * 代码格式：000xxx或600xxx
-     */
-    private fun reformatCode(code: String): String? {
-        if (code.length != 6) return null
-        if (code.startsWith("000")) {
-            return "sz$code"
-        }
-        if (code.startsWith("600")) {
-            return "sh$code"
-        }
-        return null
-    }
 
 }
