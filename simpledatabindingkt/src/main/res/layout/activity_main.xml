@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tool="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+        <import type="android.widget.Button" />
+
+        <variable
+            name="viewmodel"
+            type="top.littlefogcat.simpledatabindingkt.StockViewModel" />
+
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="8dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="输入股票代码"
+                android:text="600519"
+                android:textSize="22sp"
+                tool:hint="600519" />
+
+            <Button
+                android:id="@+id/btnGo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="查询"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text='@{viewmodel.refreshingObservable?"加载中...":(viewmodel.stockInfoObservable.name+"（"+viewmodel.stockInfoObservable.code+"）\n当前价："+viewmodel.stockInfoObservable.price+"\n涨幅："+viewmodel.stockInfoObservable.increase+"%")}'
+            android:textSize="24sp"
+            android:visibility="gone"
+            tool:text="贵州茅台（600519）\n当前价：1406.10元\n涨幅：-1.33%"
+            tool:visibility="visible" />
+
+    </LinearLayout>
+</layout>
