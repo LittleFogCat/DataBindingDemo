@@ -1,38 +1,43 @@
 package top.littlefogcat.simpledatabindingkt
 
 import android.util.Log
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import java.io.IOException
+import java.lang.Exception
 
 class StockViewModel() {
     companion object {
         const val TAG = "StockViewModel"
+
+        const val STATE_INITIAL = 0
+        const val STATE_QUERYING = 1
+        const val STATE_SUCCESS = 2
+        const val STATE_FAILURE = 3
     }
 
     private val repository = StockRepository()
 
     val stockInfoObservable = ObservableField<StockInfo>()
-    val refreshingObservable = ObservableBoolean(false)
+
+    /**
+     * 保存当前查询状态。
+     * 0：初始状态；
+     * 1：查询中；
+     * 2：查询成功；
+     * 3：查询失败；
+     */
+    val stateObservable = ObservableInt(STATE_INITIAL)
 
     fun queryStock(code: String) {
         val realCode = reformatCode(code) ?: return
 
-        refreshingObservable.set(true)
+        stateObservable.set(STATE_QUERYING)
 
-        repository.getStockInfo(realCode, object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "onFailure: ${e.message}")
-                refreshingObservable.set(false)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val s = response.body?.string() ?: return
+        GlobalScope.launch {
+            try {
+                val s = repository.getStockInfo(realCode) ?: return@launch
                 Log.d(TAG, "onResponse: $s")
                 val data = s.substring(s.indexOf("\"") + 1, s.lastIndexOf("\""))
                 val dataArr = data.split("~")
@@ -43,10 +48,13 @@ class StockViewModel() {
                     increase = dataArr[32].toDouble()
                 )
                 stockInfoObservable.set(stockInfo)
-                refreshingObservable.set(false)
-                Log.d(TAG, "queryStock: thread=" + Thread.currentThread().name)
+                stateObservable.set(STATE_SUCCESS)
+            } catch (e: Exception) {
+                Log.e(TAG, "onFailure: ${e.message}")
+                e.printStackTrace()
+                stateObservable.set(STATE_FAILURE)
             }
-        })
+        }
     }
 
     /**

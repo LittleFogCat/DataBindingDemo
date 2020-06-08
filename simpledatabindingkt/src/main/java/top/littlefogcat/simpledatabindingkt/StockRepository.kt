@@ -12,4 +12,9 @@ class StockRepository {
         HttpUtil.httpGet(realUrl, callback)
     }
 
+    fun getStockInfo(code: String): String? {
+        val realUrl = URL_PREFIX + code
+        return HttpUtil.httpGet(realUrl)
+    }
+
 }
